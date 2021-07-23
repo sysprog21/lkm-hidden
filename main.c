@@ -3,7 +3,7 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
-MODULE_LICENSE("Dual MIT/GPL");
+MODULE_LICENSE("GPL");
 MODULE_AUTHOR("National Cheng Kung University, Taiwan");
 MODULE_DESCRIPTION("Catch Me If You Can");
 
