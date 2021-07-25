@@ -3,6 +3,15 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 
+#include <linux/version.h>
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,7,0)
+#define KPROBE_LOOKUP 1
+#include <linux/kprobes.h>
+static struct kprobe kp = {
+	.symbol_name = "kallsyms_lookup_name",
+};
+#endif
+
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("National Cheng Kung University, Taiwan");
 MODULE_DESCRIPTION("Catch Me If You Can");
@@ -11,10 +20,22 @@ static void __init hide_myself(void)
 {
     struct vmap_area *va, *vtmp;
     struct module_use *use, *tmp;
+    struct list_head *_vmap_area_list;
+    struct rb_root *_vmap_area_root;
 
-    struct list_head *_vmap_area_list =
+#ifdef KPROBE_LOOKUP
+    unsigned long (*kallsyms_lookup_name)(const char *name);
+    int ret;
+    ret = register_kprobe(&kp);
+    if (ret < 0)
+	    return ret;
+    kallsyms_lookup_name = ( unsigned long(*)(const char *name) )kp.addr;
+    unregister_kprobe(&kp);
+#endif    
+
+    _vmap_area_list =
         (struct list_head *) kallsyms_lookup_name("vmap_area_list");
-    struct rb_root *_vmap_area_root =
+    _vmap_area_root =
         (struct rb_root *) kallsyms_lookup_name("vmap_area_root");
 
     /* hidden from /proc/vmallocinfo */
